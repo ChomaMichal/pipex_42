@@ -1,10 +1,9 @@
 architecture
-	read file 1
-	fork?
-	pipe the child?
-		use command1 on file1 and write the with pipe to main
-	save the $output 
-	fork ?
-	pipe the child ?
-		use command2 on $output and pipe to main
+	pipe
+	fork
+		in child dup2 std out to pipe
+		use command1 on file1 and pipe to main
+	in paretn wait until child finishes
+	read the $output 
+	repeat process as before
 	write to file 2
