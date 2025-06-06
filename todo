@@ -1,0 +1,10 @@
+architecture
+	read file 1
+	fork?
+	pipe the child?
+		use command1 on file1 and write the with pipe to main
+	save the $output 
+	fork ?
+	pipe the child ?
+		use command2 on $output and pipe to main
+	write to file 2
