@@ -5,12 +5,12 @@
 #include <errno.h>
 int main(int argc, char **av, char **env)
 {
-	char *args[] = {"/run/current-system/sw/bin/bash", "-c",  "cat file1", NULL};
+	char *args[] = {"/usr/bin/bash", "-c",  "cat file1", NULL};
 	int		fd[2];
 	int		tmp;
 	pid_t f;
 	char str[80];
-	char *program = "/run/current-system/sw/bin/bash";
+	char *program = "/usr/bin/bash";
 	char *command = "echo hello";
 	char *envp[] = {NULL};
 
