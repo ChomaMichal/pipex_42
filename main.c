@@ -10,28 +10,33 @@
 /*                                                                            */
 /* ************************************************************************** */
 #include "pipex.h"
+#include "printf.h"
 //$> ./pipex infile "ls -l" "wc -l" outfile
 int main(int argc, char **argv)
 {
 	int		fd[2];
-	char	*str = ft_calloc(1024, 1);
+	int		infile;
+	int		outfile;
+	char	str[123];
 
 	if (argc != 5)
 		return (-1);
-
 	if (permitions(argv[1], argv[4]) == -1)
 		return (-1);
 	pipe(fd);
-	piped_child(fd[1], argv[1], argv[2]);
-	//this aplied the funcion to first file
-		
-	read(fd[0], str, 1024);
-	ft_printf("31 bashed file1 %s \n", str);
+	infile = open(argv[1], O_RDONLY);
+	outfile = open(argv[4], O_WRONLY);
+	piped_child(fd[1], infile, fd[0],NULL);
+	read(fd[1],str,13);
+	ft_printf("%s exited first piped child\n", str);
+	piped_child(outfile, fd[0], fd[1], NULL);
+
+	
 	return (1);
 }
 
 
-//permitions testeed
+//permitions testee
 int	permitions(char *read, char *write)
 {
 	if (access(read, R_OK) == -1)

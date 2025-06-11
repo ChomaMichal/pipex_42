@@ -11,44 +11,44 @@
 /* ************************************************************************** */
 
 #include "pipex.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 // outputfd  if where shit should be writen
 // filefd is where we get shit from
 // command says what should we do with it
 // creates a child that needs to be piped beforehand
-int	piped_child(int fd, char *file, char* command)
+int	piped_child(int outfile, int  infile, int lose, char *command)
 {
 	char	*program;
 	char	*args[4];
 	char	*env[1];
 	int		f;
 
-//	program = "/run/current-system/sw/bin/bash";
-	program = "/usr/bin/bash";
-//	args = {program, "-c",  command, NULL};
+	command = (char*)NULL;
+		program = "/usr/bin/bash";
 	args[0] = program;
 	args[1] = "-c";
-	args[2] = ft_strjoin(command, ft_strjoin(" ",file));
+	args[2] = "cat";
 	args[3] = NULL;
-//	*env = NULL;
-	//ft_printf();
+	*env = NULL;
 	f = fork();
 	if (f == 0)
 	{
-			dup2(fd, 1);
-		if (execve(program, args, env) == -1)
+		close(lose);
+		dup2(infile, STDIN_FILENO);
+		dup2(outfile, STDOUT_FILENO);
+		if (execve(args[0], args, env) == -1)
 		{
-			close(fd);
-			return (-1);
+		ft_printf("errror\n");
+			close(infile);
+			close(outfile);
+			return (0);
 		}
 		return (-1);
 	}
-	else
-	{
-	//ft_printf("49return piped child\n");
 	waitpid(1, &f, 0);
-//	waitpid(1, &f, 0);
 	return (1);
-	}
 }
 

@@ -21,10 +21,11 @@
 # include <stddef.h>
 # include <limits.h>
 # include <stdint.h>
+# include <fcntl.h>
 # include "printf.h"
 # include "libft.h"
 
 int	permitions(char *read, char *write);
-int	piped_child(int fd, char *file, char* command);
+int	piped_child(int outfile, int  infile, int lose, char *command);
 
 #endif

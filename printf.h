@@ -23,6 +23,7 @@ size_t	printxx(va_list ap, int *rt);
 size_t	printx(va_list ap, int *rt);
 void	ft_puthexd_len(unsigned long n, int *len, char *arr);
 size_t	printp(va_list ap, int *rt);
+// takes any amount of argumetns
 int		ft_printf(const char *str, ...);
 size_t	printu(va_list ap, int *rt);
 size_t	printd(va_list ap, int *rt);
