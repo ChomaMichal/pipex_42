@@ -26,20 +26,15 @@ int	piped_child(int outfile, int  infile, int lose, char *command)
 	char	*env[1];
 	int		f;
 
-	command = (char*)NULL;
-		program = "/usr/bin/bash";
-	args[0] = program;
-	args[1] = "-c";
-	args[2] = "cat";
-	args[3] = NULL;
-	*env = NULL;
+	args[0] = command;
+	args[1] = NULL;
 	f = fork();
 	if (f == 0)
 	{
 		close(lose);
 		dup2(infile, STDIN_FILENO);
 		dup2(outfile, STDOUT_FILENO);
-		if (execve(args[0], args, env) == -1)
+		if (execve(command, args, NULL) == -1)
 		{
 		ft_printf("errror\n");
 			close(infile);
