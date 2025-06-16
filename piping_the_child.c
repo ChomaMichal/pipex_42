@@ -19,22 +19,26 @@
 // filefd is where we get shit from
 // command says what should we do with it
 // creates a child that needs to be piped beforehand
-int	piped_child(int outfile, int  infile, int lose, char *command)
+int	piped_child(int outfile, int  infile, int lose, char **command)
 {
 	char	*program;
 	char	*args[4];
 	char	*env[1];
 	int		f;
 
-	args[0] = command;
-	args[1] = NULL;
+	
+	args[0] = command[0];
+	args[1] = command[1];
+	args[2] = NULL;
+	args[3] = NULL;
+	*env = NULL;
 	f = fork();
 	if (f == 0)
 	{
 		close(lose);
 		dup2(infile, STDIN_FILENO);
 		dup2(outfile, STDOUT_FILENO);
-		if (execve(command, args, NULL) == -1)
+		if (execve(args[0], args, env) == -1)
 		{
 		ft_printf("errror\n");
 			close(infile);

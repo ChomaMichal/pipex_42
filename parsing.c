@@ -29,6 +29,13 @@ char	*isbin(char *path, char *command)
 	return (NULL);
 }
 
+char	**get_fc(char *rawcommand)
+{
+	return(ft_split(rawcommand,' '));
+}
+
+
+
 char	*get_path(char**envp, char *command)
 {
 	int i;
@@ -46,9 +53,9 @@ char	*get_path(char**envp, char *command)
 			j = 0;
 			while(arr[j])
 			{
-				path = isbin(arr[j], commmand);
+				path = isbin(arr[j], command);
 				if(path)
-					return (NULL);
+					return (path);
 				j++;
 			}
 		}

@@ -26,7 +26,7 @@
 # include "libft.h"
 
 int		permitions(char *read, char *write);
-int		piped_child(int outfile, int  infile, int lose, char *command);
+int		piped_child(int outfile, int  infile, int lose, char **command);
 char	*get_path(char**envp, char *command);
 
 #endif

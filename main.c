@@ -17,20 +17,22 @@ int main(int argc, char **argv, char **envp)
 	int		fd[2];
 	int		infile;
 	int		outfile;
-	char	*binpath
+	char	**command;
+	char	*bin;
 	
 	if (argc != 5)
 		return (-1);
 	if (permitions(argv[1], argv[4]) == -1)
 		return (-1);
-	binpath = get_path(envp, argv[2]);
+	command = ft_split(argv[2], ' ');
+	bin = get_path(envp, command[0]);
 	pipe(fd);
 	infile = open(argv[1], O_RDONLY);
 	outfile = open(argv[4], O_WRONLY);
-	piped_child(fd[1], infile, fd[0],binpath);
-	read(fd[1],str,13);
-	binpath = get_path(envp, argv[3]);
-	piped_child(outfile, fd[0], fd[1], binpath);
+	piped_child(fd[1], infile, fd[0], command);
+	command = ft_split(argv[2], ' ');
+	command[0] = get_path(envp, argv[2]);
+	piped_child(outfile, fd[0], fd[1], command);
 
 	
 	return (1);
