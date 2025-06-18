@@ -25,8 +25,15 @@
 # include "printf.h"
 # include "libft.h"
 
+typedef struct s_command
+{
+	char	*bin;
+	char	**args;
+}	t_command;
+
 int		permitions(char *read, char *write);
-int		piped_child(int outfile, int  infile, int lose, char **command);
+int		piped_child(int outfile, int  infile, int lose, t_command *command);
 char	*get_path(char**envp, char *command);
+t_command	*fill_command(char *args, char **envp);
 
 #endif

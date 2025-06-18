@@ -2,6 +2,7 @@
 
 #include "pipex.h"
 #include "printf.h"
+#include "stdio.h"
 
 void	printstrarr(char **arr)
 {
@@ -10,7 +11,7 @@ void	printstrarr(char **arr)
 	i = 0;
 	while(arr[i])
 	{
-		ft_printf("%s\n", arr[i]);
+		printf("%s\n", arr[i]);
 		i ++;
 	}
 }
