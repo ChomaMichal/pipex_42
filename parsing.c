@@ -19,14 +19,19 @@ void	printstrarr(char **arr)
 char	*isbin(char *path, char *command)
 {
 	char	*binpath;
-	binpath  = ft_strjoin("/", command);
-	if (binpath)
-		binpath = ft_strjoin(path, binpath);
+	char	*tmp;
+
+	tmp = ft_strjoin("/", command);
+	if (!tmp)
+		return (NULL);
+	binpath = ft_strjoin(path, tmp);
+	free(tmp);
 	if (binpath)
 	{
 		if (access(binpath, X_OK) == 0)
 			return (binpath);
 	}
+	free(binpath);
 	return (NULL);
 }
 
@@ -35,7 +40,19 @@ char	**get_fc(char *rawcommand)
 	return(ft_split(rawcommand,' '));
 }
 
-
+void	free_split(char ***split)
+{
+	int		i;
+	
+	i = 0;
+	while((*split)[i])
+	{
+		free((*split)[i]);
+		i++;
+	}
+	free(*split);
+	*split = NULL;
+}
 
 char	*get_path(char**envp, char *command)
 {
@@ -44,6 +61,7 @@ char	*get_path(char**envp, char *command)
 	char	**arr;
 	char	*path;
 
+	arr = NULL;
 	i = 0;
 	while(envp[i])
 	{
@@ -56,11 +74,11 @@ char	*get_path(char**envp, char *command)
 			{
 				path = isbin(arr[j], command);
 				if(path)
-					return (path);
+					return (free_split(&arr),path);
 				j++;
 			}
 		}
 		i ++;
 	}
-	return (NULL);
+	return (free_split(&arr), NULL);
 }

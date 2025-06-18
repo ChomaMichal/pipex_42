@@ -34,7 +34,8 @@ int	piped_child(int outfile, int  infile, int lose, t_command *command)
 			printf("errror\n");
 			close(infile);
 			close(outfile);
-			return (0);
+			free_command(&command);
+			exit(0);
 		}
 		return (-1);
 	}

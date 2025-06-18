@@ -26,14 +26,23 @@ int main(int argc, char **argv, char **envp)
 		return (-1);
 	pipe(fd);
 	infile = open(argv[1], O_RDONLY);
+	if (infile == -1)
+		return (-1);
 	outfile = open(argv[4], O_WRONLY);
+	if (outfile == -1)
+		return (-1);
 	command = fill_command(argv[2], envp);
+	if (command == NULL)
+		return (-1);
 	piped_child(fd[1], infile, fd[0], command);
+	free_command(&command);
 	command = fill_command(argv[3], envp);
+	if (command == NULL)
+		return (-1);
 	piped_child(outfile, fd[0], fd[1], command);
+	free_command(&command);
 	return (1);
 }
-
 
 //permitions testee
 int	permitions(char *read, char *write)
@@ -44,8 +53,6 @@ int	permitions(char *read, char *write)
 		return (-1);
 	return (1);
 }
-
-
 
 t_command	*fill_command(char *args, char **envp)
 {
@@ -59,6 +66,14 @@ t_command	*fill_command(char *args, char **envp)
 		return (free(command), NULL);
 	command->bin = get_path(envp, command->args[0]);
 	if (!command->bin)
-		return (free(command), NULL);
+		return (free(command), free_split(&(command->args)), NULL);
 	return (command);
+}
+
+void	free_command(t_command **command)
+{
+	free_split(&((*command)->args));
+	free((*command)->bin);
+	free(*command);
+	*command = NULL;
 }
