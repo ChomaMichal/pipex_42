@@ -18,8 +18,8 @@
 // outputfd  if where shit should be writen
 // filefd is where we get shit from
 // command says what should we do with it
-// creates a child that needs to be piped beforehand
-int	piped_child(int outfile, int  infile, int lose, t_command *command)
+// creates a child that
+int	piped_child(int outfile, int infile, int lose, t_command *command)
 {
 	int		f;
 
@@ -42,4 +42,3 @@ int	piped_child(int outfile, int  infile, int lose, t_command *command)
 	waitpid(1, &f, 0);
 	return (1);
 }
-

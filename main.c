@@ -10,14 +10,12 @@
 /*                                                                            */
 /* ************************************************************************** */
 #include "pipex.h"
-#include "printf.h"
 //$> ./pipex infile "ls -l" "wc -l" outfile
-int main(int argc, char **argv, char **envp)
+int	main(int argc, char **argv, char **envp)
 {
-	int		fd[2];
-	int		infile;
-	int		outfile;
-	char	*bin;
+	int			fd[2];
+	int			infile;
+	int			outfile;
 	t_command	*command;
 
 	if (argc != 5)
@@ -26,10 +24,8 @@ int main(int argc, char **argv, char **envp)
 		return (-1);
 	pipe(fd);
 	infile = open(argv[1], O_RDONLY);
-	if (infile == -1)
-		return (-1);
 	outfile = open(argv[4], O_WRONLY);
-	if (outfile == -1)
+	if (outfile == -1 || infile == -1)
 		return (-1);
 	command = fill_command(argv[2], envp);
 	if (command == NULL)
@@ -56,7 +52,7 @@ int	permitions(char *read, char *write)
 
 t_command	*fill_command(char *args, char **envp)
 {
-	t_command *command;
+	t_command	*command;
 
 	command = malloc(sizeof(t_command));
 	if (!command)
@@ -66,7 +62,7 @@ t_command	*fill_command(char *args, char **envp)
 		return (free(command), NULL);
 	command->bin = get_path(envp, command->args[0]);
 	if (!command->bin)
-		return (free(command), free_split(&(command->args)), NULL);
+		return (free_split(&(command->args)), free(command),  NULL);
 	return (command);
 }
 

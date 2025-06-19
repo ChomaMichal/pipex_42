@@ -1,0 +1,2 @@
+don't use funcheck use valgrind --trace-children=yes flag
+create a fake funcions that will simulate failiroute withs static variables
