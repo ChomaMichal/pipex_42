@@ -31,6 +31,7 @@ typedef struct s_command
 
 int			permitions(char *read, char *write);
 int			piped_child(int outfile, int infile, int lose, t_command *command);
+int			piped_child_b(int outfile, int infile, int *lose, t_command *command);
 char		*get_path(char**envp, char *command);
 t_command	*fill_command(char *args, char **envp);
 void		free_split(char ***split);
