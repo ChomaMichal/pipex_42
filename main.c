@@ -22,7 +22,9 @@ int	main(int argc, char **argv, char **envp)
 	if (argc != 5)
 		return (-1);
 	pipe(fd);
-	outfile = permitions(argv[1], argv[4]);
+	if (permitions(argv[1], argv[4]) == -1)
+		return (-1);
+	outfile = open(argv[4], O_WRONLY | O_TRUNC);
 	printf("%i outifle\n", outfile);
 	infile = open(argv[1], O_RDONLY);
 	if (outfile == -1 || infile == -1)
@@ -41,15 +43,21 @@ int	main(int argc, char **argv, char **envp)
 //permitions testee
 int	permitions(char *rd, char *wr)
 {
+	int	fd;
+
 	if (access(rd, R_OK) == -1)
 		return (-1);
 	if (access(wr, F_OK) == -1)
 	{
-		return (open(wr, O_CREAT, 0644));
+		fd = open(wr, O_CREAT, 0644);
+		if (fd == -1)
+			return (-1);
+		return (close(fd));
 	}
 	if (access(wr, W_OK) == -1)
 		return (-1);
-	return (open(wr, O_TRUNC | O_WRONLY));
+	return (1);
+
 }
 
 t_command	*fill_command(char *args, char **envp)

@@ -28,49 +28,100 @@ void	close_fds(int fd1, int fd2, int fd3, int fd4)
 		close(fd4);
 }
 
-int	here_doc(int argc, char **argv, char **envp)
+char	*ft_strjoinf1(char *fr, char *str)
 {
-	char		*tmp;
-	ssize_t		rt;
-	int			fd[4];
-	t_command	*command;
-	int			outfile;
+	char	*tmp;
 
-	
-	if (access(argv[argc - 1], W_OK) == -1)
-		exit(1);
-	command = fill_command(argv[3], envp);
-	tmp = ft_calloc(sizeof(char), 1024); // free command when tmp fails and the other way
-	if (command == NULL || tmp == NULL)
-			exit(1);
-	pipe(fd + 2);
-	pipe(fd);
-	piped_child_b(fd[1], fd[2], fd, command);
-	command = fill_command(argv[4], envp);
-	outfile = open(argv[argc -1], O_WRONLY);
-	piped_child_b(outfile, fd[0], fd, command);
-	argv[2] = ft_strjoin(argv[2], "\n");
-	if (argv[2] == NULL) //freestuff
-		exit(0);
-	while(1)
-	{
-		rt = read(0, tmp, 1023);
-		if (rt == -1)
-			exit (0);
-		if (ft_strnstr(tmp, argv[2], 1024))
-			break ;
-		rt = write(fd[3], tmp, rt);
-		if (rt == -1)
-			exit (-1);
-	}
-	close_fds(fd[0], fd[1], fd[2], fd[3]);
-	close(outfile);
-	free(argv[2]);
-	free(tmp);
-	waitpid(-1, NULL, 0);
-	exit(0);
+	tmp = ft_strjoin(fr, str);
+	free(fr);
+	return (tmp);
 }
 
+char *format_doc(char *str)
+{
+	char	*tmp;
+
+	tmp = ft_strjoin("\n", str);
+	if (tmp == NULL)
+		return (NULL);
+	return (ft_strjoinf1(tmp, "\n"));
+}
+
+
+int	reading_command_line(char **argv)
+{
+	char		tmp[1025];
+	char		*str;
+	ssize_t		rd;
+	int			fd;
+
+	str = NULL;
+	argv[2] = format_doc(argv[2]);
+	if(argv[2] == NULL)
+		return (-1);
+	fd = open("/tmp/tmp.tmp", O_CREAT | O_RDWR, 0666);
+	while(1)
+	{
+		rd = read(0, tmp, 1024);
+		if(rd == -1)
+			return (free(str), free(argv[2]), -1);
+		tmp[rd] = 0;
+		str = ft_strjoinf1(str, tmp);
+		if (str == NULL)
+			return (free(argv[2]), -1);
+		if (ft_strnstr(str, argv[2], ft_strlen(str)) != NULL ||
+			ft_strnstr(str, argv[2] + 1, ft_strlen(argv[2] + 1)) != NULL)
+			break ;
+	}
+	str[ft_strlen(str) - ft_strlen(argv[2])] = 0;
+	if (write(fd, str, ft_strlen(str)) == -1)
+	{
+		printf("write fails\n");
+		return (close(fd), free(str), free(argv[2]), -1);
+	}
+	return (close(fd), free(str), free(argv[2]), fd);
+}
+
+int	here_doc(int argc, char **argv, char **envp)
+{
+	int			fd[2];
+	int			infile;
+	int			outfile;
+	t_command	*command;
+	int			i;
+	
+	if (permitions(NULL, argv[argc -1]) == -1)
+		return (-1);
+	infile = reading_command_line(argv);
+	if (infile == -1)
+		exit (1);
+	i = 0;
+	while (i < argc - 3)
+	{
+		command = fill_command(argv[i + 3], envp);
+		if (command == NULL && close (infile))
+			exit(1);
+		pipe(fd);
+		piped_child(fd[1], infile, fd[0], command);
+		close(fd[1]);
+		close(infile);
+		infile = fd[0];
+		i ++;
+	}
+	outfile = open(argv[argc - 1], O_WRONLY);
+	if (outfile== -1)
+		exit(1);
+	command = fill_command(argv[argc - 2], envp);
+	if (command == NULL)
+		return (close(outfile), close(infile),-1);
+	piped_child(outfile, infile, 0, command);
+	close(infile);
+	close(outfile);
+	i = 0;
+	while(i ++ < argc - 3)
+		waitpid(-1, NULL, 0);
+	exit(1);
+}
 
 int	main(int argc, char **argv, char **envp)
 {
@@ -118,15 +169,23 @@ int	main(int argc, char **argv, char **envp)
 		waitpid(-1, NULL, 0);
 	return (1);
 }
-
-//permitions testee
-int	permitions(char *read, char *write)
+int	permitions(char *rd, char *wr)
 {
-	if (access(read, R_OK) == -1)
+	int	fd;
+
+	if (rd != NULL && access(rd, R_OK) == -1)
 		return (-1);
-	if (access(write, W_OK) == -1)
+	if (access(wr, F_OK) == -1)
+	{
+		fd = open(wr, O_CREAT, 0644);
+		if (fd == -1)
+			return (-1);
+		return (close(fd));
+	}
+	if (access(wr, W_OK) == -1)
 		return (-1);
 	return (1);
+
 }
 
 t_command	*fill_command(char *args, char **envp)
