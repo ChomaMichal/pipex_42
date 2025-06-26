@@ -10,6 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 #include "pipex.h"
+#include <stdio.h>
 //$> ./pipex infile "ls -l" "wc -l" outfile
 int	main(int argc, char **argv, char **envp)
 {
@@ -20,34 +21,35 @@ int	main(int argc, char **argv, char **envp)
 
 	if (argc != 5)
 		return (-1);
-	if (permitions(argv[1], argv[4]) == -1)
-		return (-1);
 	pipe(fd);
+	outfile = permitions(argv[1], argv[4]);
+	printf("%i outifle\n", outfile);
 	infile = open(argv[1], O_RDONLY);
-	outfile = open(argv[4], O_WRONLY);
 	if (outfile == -1 || infile == -1)
 		return (-1);
 	command = fill_command(argv[2], envp);
 	if (command == NULL)
 		return (-1);
 	piped_child(fd[1], infile, fd[0], command);
-	free_command(&command);
 	command = fill_command(argv[3], envp);
 	if (command == NULL)
 		return (-1);
 	piped_child(outfile, fd[0], fd[1], command);
-	free_command(&command);
 	return (1);
 }
 
 //permitions testee
-int	permitions(char *read, char *write)
+int	permitions(char *rd, char *wr)
 {
-	if (access(read, R_OK) == -1)
+	if (access(rd, R_OK) == -1)
 		return (-1);
-	if (access(write, W_OK) == -1)
+	if (access(wr, F_OK) == -1)
+	{
+		return (open(wr, O_CREAT, 0644));
+	}
+	if (access(wr, W_OK) == -1)
 		return (-1);
-	return (1);
+	return (open(wr, O_TRUNC | O_WRONLY));
 }
 
 t_command	*fill_command(char *args, char **envp)

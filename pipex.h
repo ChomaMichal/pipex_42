@@ -29,7 +29,7 @@ typedef struct s_command
 	char	**args;
 }	t_command;
 
-int			permitions(char *read, char *write);
+int			permitions(char *rd, char *wr);
 int			piped_child(int outfile, int infile, int lose, t_command *command);
 int			piped_child_b(int outfile, int infile, int *lose, t_command *command);
 char		*get_path(char**envp, char *command);
