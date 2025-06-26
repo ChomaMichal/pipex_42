@@ -26,7 +26,6 @@ int	piped_child(int outfile, int infile, int lose, t_command *command)
 	f = fork();
 	if (f == 0)
 	{
-		perror("entered child\n");
 		if (lose)
 			close(lose);
 		dup2(infile, STDIN_FILENO);
@@ -35,7 +34,6 @@ int	piped_child(int outfile, int infile, int lose, t_command *command)
 		close(outfile);
 		if (execve(command->bin, command->args, NULL) == -1)
 		{
-			perror("child failed\n");
 			close(infile);
 			close(outfile);
 			free_command(&command);
@@ -43,37 +41,7 @@ int	piped_child(int outfile, int infile, int lose, t_command *command)
 		}
 		return (-1);
 	}
-	perror("exited piped child\n");
 	free_command(&command);
 	return (1);
 }
 
-int	piped_child_b(int outfile, int infile, int *lose, t_command *command)
-{
-	int		f;
-
-	f = fork();
-	if (f == 0)
-	{
-		perror("entered child\n");
-		dup2(infile, STDIN_FILENO);
-		dup2(outfile, STDOUT_FILENO);
-		close(outfile);
-		close(lose[0]);
-		close(lose[1]);
-		close(lose[2]);
-		close(lose[3]);
-		if (execve(command->bin, command->args, NULL) == -1)
-		{
-			perror("child failed\n");
-			close(infile);
-			close(outfile);
-			free_command(&command);
-			exit(0);
-		}
-		return (-1);
-	}
-	perror("exited piped child\n");
-	free_command(&command);
-	return (1);
-}

@@ -66,20 +66,23 @@ int	reading_command_line(char **argv)
 		if(rd == -1)
 			return (free(str), free(argv[2]), -1);
 		tmp[rd] = 0;
+		if (rd == 0)
+			break;
 		str = ft_strjoinf1(str, tmp);
 		if (str == NULL)
 			return (free(argv[2]), -1);
 		if (ft_strnstr(str, argv[2], ft_strlen(str)) != NULL ||
 			ft_strnstr(str, argv[2] + 1, ft_strlen(argv[2] + 1)) != NULL)
+		{	
+			str[ft_strlen(str) - ft_strlen(argv[2]) + 1] = 0;
 			break ;
+		}
 	}
-	str[ft_strlen(str) - ft_strlen(argv[2])] = 0;
 	if (write(fd, str, ft_strlen(str)) == -1)
 	{
-		printf("write fails\n");
 		return (close(fd), free(str), free(argv[2]), -1);
 	}
-	return (close(fd), free(str), free(argv[2]), fd);
+	return (free(str), free(argv[2]), fd);
 }
 
 int	here_doc(int argc, char **argv, char **envp)
@@ -92,14 +95,15 @@ int	here_doc(int argc, char **argv, char **envp)
 	
 	if (permitions(NULL, argv[argc -1]) == -1)
 		return (-1);
-	infile = reading_command_line(argv);
+	reading_command_line(argv);
+	infile = open("/tmp/tmp.tmp", O_RDONLY);
 	if (infile == -1)
 		exit (1);
-	i = 0;
-	while (i < argc - 3)
+	i = 3;
+	while (i < argc - 2)
 	{
-		command = fill_command(argv[i + 3], envp);
-		if (command == NULL && close (infile))
+		command = fill_command(argv[i], envp);
+		if (command == NULL)
 			exit(1);
 		pipe(fd);
 		piped_child(fd[1], infile, fd[0], command);
@@ -108,7 +112,7 @@ int	here_doc(int argc, char **argv, char **envp)
 		infile = fd[0];
 		i ++;
 	}
-	outfile = open(argv[argc - 1], O_WRONLY);
+	outfile = open(argv[argc - 1], O_WRONLY | O_APPEND);
 	if (outfile== -1)
 		exit(1);
 	command = fill_command(argv[argc - 2], envp);
@@ -118,8 +122,9 @@ int	here_doc(int argc, char **argv, char **envp)
 	close(infile);
 	close(outfile);
 	i = 0;
-	while(i ++ < argc - 3)
+	while(i ++ < argc - 5)
 		waitpid(-1, NULL, 0);
+	unlink("/tmp/tmp.tmp");
 	exit(1);
 }
 
@@ -137,16 +142,14 @@ int	main(int argc, char **argv, char **envp)
 		return (here_doc(argc, argv, envp));
 	if (permitions(argv[1], argv[argc -1]) == -1)
 		return (-1);
-	fd[0] = 0;
-	fd[1] = 0;
 	infile = open(argv[1], O_RDONLY);
 	if (infile == -1)
 		return (1);
-	i = 0;
-	while (i < argc - 4)
+	i = 2;
+	while (i < argc - 2)
 	{
-		command = fill_command(argv[i + 2], envp);
-		if (command == NULL && close (infile))
+		command = fill_command(argv[i], envp);
+		if (command == NULL)
 			exit(1);
 		pipe(fd);
 		piped_child(fd[1], infile, fd[0], command);
@@ -155,7 +158,7 @@ int	main(int argc, char **argv, char **envp)
 		infile = fd[0];
 		i ++;
 	}
-	outfile = open(argv[argc - 1], O_WRONLY);
+	outfile = open(argv[argc - 1], O_WRONLY | O_TRUNC);
 	if (outfile== -1)
 		return (close(infile), -1);
 	command = fill_command(argv[argc - 2], envp);
@@ -165,7 +168,7 @@ int	main(int argc, char **argv, char **envp)
 	close(infile);
 	close(outfile);
 	i = 0;
-	while(i ++ < argc - 2)
+	while(i ++ < argc - 3)
 		waitpid(-1, NULL, 0);
 	return (1);
 }
