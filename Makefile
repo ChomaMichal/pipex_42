@@ -25,7 +25,9 @@ FILES = piping_the_child.c\
 		ft_strnstr.c\
 		ft_calloc.c\
 		ft_substr.c\
-		ft_strncmp.c
+		ft_strncmp.c\
+		utils.c\
+		here_doc.c
 		
 OBJ = $(FILES:.c=.o)
 

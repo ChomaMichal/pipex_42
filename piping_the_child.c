@@ -44,4 +44,3 @@ int	piped_child(int outfile, int infile, int lose, t_command *command)
 	free_command(&command);
 	return (f);
 }
-

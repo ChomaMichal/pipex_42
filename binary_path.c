@@ -47,15 +47,13 @@ void	free_split(char ***split)
 	free(*split);
 }
 
-char	*get_path(char**envp, char *command)
+char	*get_path_path(char**envp, char *command)
 {
 	int		i;
 	int		j;
 	char	**arr;
 	char	*path;
 
-	if (ft_strchr(command, '/'))
-		return (ft_strdup(command));
 	arr = NULL;
 	i = 0;
 	while (envp[i])
@@ -75,4 +73,11 @@ char	*get_path(char**envp, char *command)
 		i ++;
 	}
 	return (free_split(&arr), NULL);
+}
+
+char	*get_path(char**envp, char *command)
+{
+	if (ft_strchr(command, '/'))
+		return (ft_strdup(command));
+	return (get_path_path(envp, command));
 }

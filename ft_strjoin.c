@@ -22,12 +22,12 @@ char	*ft_strjoin(char const *s1, char const *s2)
 		return (NULL);
 	counter = 0;
 	counter2 = 0;
-	while(s1 && s1[counter])
+	while (s1 && s1[counter])
 	{
 		str[counter] = s1[counter];
 		counter ++;
 	}
-	while(s2 && s2[counter2])
+	while (s2 && s2[counter2])
 	{
 		str[counter2 + counter] = s2[counter2];
 		counter2 ++;
