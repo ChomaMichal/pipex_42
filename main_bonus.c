@@ -16,7 +16,7 @@
 #include <unistd.h>
 //$> ./pipex infile "ls -l" "wc -l" outfile
 
-char	*reading_from_stdin(int fd, char *cmd);
+char	*reading_from_stdin(char *cmd);
 int	call_command_to_fd(int infile, int outfile, char *cmd, char **envp);
 
 char	*ft_strjoinf1(char *fr, char *str)
@@ -41,7 +41,6 @@ char *format_doc(char *str)
 
 int	reading_command_line(char **argv)
 {
-	char		tmp[1025];
 	char		*str;
 	int			fd;
 
@@ -52,7 +51,7 @@ int	reading_command_line(char **argv)
 	fd = open("/tmp/tmp.tmp", O_CREAT | O_RDWR, 0666);
 	if (fd == -1)
 		return (ft_putstr_fd("file creation failed\n", 2), free(argv[2]),-1);
-	str = reading_from_stdin(fd, argv[2]);
+	str = reading_from_stdin(argv[2]);
 	if (write(fd, str, ft_strlen(str)) == -1)
 	{
 		return (ft_putstr_fd("write failed\n", 2) , close(fd), free(str), free(argv[2]), -1);
@@ -60,7 +59,7 @@ int	reading_command_line(char **argv)
 	return (free(str), free(argv[2]), fd);
 }
 
-char	*reading_from_stdin(int fd, char *cmd)
+char	*reading_from_stdin(char *cmd)
 {
 	ssize_t		rd;
 	char		*str;
@@ -99,12 +98,13 @@ void	hexit(char *file, char *str, int code)
 
 void	here_doc(int argc, char **argv, char **envp)
 {
-	int			fd[2];
 	int			infile;
 	int			outfile;
 	int			i;
 	int			executed;
 	
+	i = 0;
+	executed = 0;
 	if (permitions(NULL, argv[argc -1]) == -1)
 		hexit (NULL, NULL, 1);
 	reading_command_line(argv);
@@ -171,7 +171,6 @@ void	intputcheck(int argc, char **argv, char **envp)
 
 int	main(int argc, char **argv, char **envp)
 {
-	int	fd[2];
 	int	infile;
 	int	outfile;
 	int	i;
@@ -189,7 +188,7 @@ int	main(int argc, char **argv, char **envp)
 		if (i++ && infile != -1)
 			executed++;
 	}
-	outfile = open(argv[argc - 1], O_WRONLY | O_TRUNC);
+	outfile = open(argv[argc - 1], O_WRONLY | O_TRUNC | O_CREAT, 0666);
 	if (outfile == -1)
 		return (close(infile), -1);
 	if (call_command_to_fd(infile, -1, argv[i], envp) != -1)

@@ -14,7 +14,7 @@ NAME = pipex
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
 FILES = piping_the_child.c\
-		main.c\
+		main_bonus.c\
 		binary_path.c\
 		ft_strjoin.c\
 		ft_split.c\
@@ -24,7 +24,8 @@ FILES = piping_the_child.c\
 		ft_strdup.c\
 		ft_strnstr.c\
 		ft_calloc.c\
-		ft_substr.c
+		ft_substr.c\
+		ft_strncmp.c
 		
 OBJ = $(FILES:.c=.o)
 
@@ -32,7 +33,7 @@ all : $(OBJ) $(NAME)
 	
 
 $(NAME): $(OBJ)
-	$(CC) $(CFLAGS) $(OBJ)
+	$(CC) $(CFLAGS) $(OBJ) -o $(NAME)
 
 
 clean :
