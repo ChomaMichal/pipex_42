@@ -26,7 +26,7 @@ int	piped_child(int outfile, int infile, int lose, t_command *command)
 	f = fork();
 	if (f == 0)
 	{
-		if (lose)
+		if (lose != -1)
 			close(lose);
 		dup2(infile, STDIN_FILENO);
 		dup2(outfile, STDOUT_FILENO);
@@ -42,6 +42,6 @@ int	piped_child(int outfile, int infile, int lose, t_command *command)
 		return (-1);
 	}
 	free_command(&command);
-	return (1);
+	return (f);
 }
 

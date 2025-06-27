@@ -16,17 +16,8 @@
 #include <unistd.h>
 //$> ./pipex infile "ls -l" "wc -l" outfile
 
-void	close_fds(int fd1, int fd2, int fd3, int fd4)
-{
-	if (fd1)
-		close(fd1);
-	if (fd2)
-		close(fd2);
-	if (fd3)
-		close(fd3);
-	if (fd4)
-		close(fd4);
-}
+char	*reading_from_stdin(int fd, char *cmd);
+int	call_command_to_fd(int infile, int outfile, char *cmd, char **envp);
 
 char	*ft_strjoinf1(char *fr, char *str)
 {
@@ -43,7 +34,7 @@ char *format_doc(char *str)
 
 	tmp = ft_strjoin("\n", str);
 	if (tmp == NULL)
-		return (NULL);
+		return (ft_putstr_fd("malloc failed\n", 2), NULL);
 	return (ft_strjoinf1(tmp, "\n"));
 }
 
@@ -52,7 +43,6 @@ int	reading_command_line(char **argv)
 {
 	char		tmp[1025];
 	char		*str;
-	ssize_t		rd;
 	int			fd;
 
 	str = NULL;
@@ -60,118 +50,153 @@ int	reading_command_line(char **argv)
 	if(argv[2] == NULL)
 		return (-1);
 	fd = open("/tmp/tmp.tmp", O_CREAT | O_RDWR, 0666);
-	while(1)
-	{
-		rd = read(0, tmp, 1024);
-		if(rd == -1)
-			return (free(str), free(argv[2]), -1);
-		tmp[rd] = 0;
-		if (rd == 0)
-			break;
-		str = ft_strjoinf1(str, tmp);
-		if (str == NULL)
-			return (free(argv[2]), -1);
-		if (ft_strnstr(str, argv[2], ft_strlen(str)) != NULL ||
-			ft_strnstr(str, argv[2] + 1, ft_strlen(argv[2] + 1)) != NULL)
-		{	
-			str[ft_strlen(str) - ft_strlen(argv[2]) + 1] = 0;
-			break ;
-		}
-	}
+	if (fd == -1)
+		return (ft_putstr_fd("file creation failed\n", 2), free(argv[2]),-1);
+	str = reading_from_stdin(fd, argv[2]);
 	if (write(fd, str, ft_strlen(str)) == -1)
 	{
-		return (close(fd), free(str), free(argv[2]), -1);
+		return (ft_putstr_fd("write failed\n", 2) , close(fd), free(str), free(argv[2]), -1);
 	}
 	return (free(str), free(argv[2]), fd);
 }
 
-int	here_doc(int argc, char **argv, char **envp)
+char	*reading_from_stdin(int fd, char *cmd)
+{
+	ssize_t		rd;
+	char		*str;
+	char		tmp[1025];
+
+	str = NULL;
+	while(1)
+	{
+		rd = read(0, tmp, 1024);
+		if(rd == -1)
+			return (ft_putstr_fd("read failed\n", 2), free(str), free(cmd), NULL);
+		tmp[rd] = 0;
+		if (rd == 0)
+			return (str);	
+		str = ft_strjoinf1(str, tmp);
+		if (str == NULL)
+			return (ft_putstr_fd("malloc failed\n", 2), free(cmd), NULL);
+		if (ft_strnstr(str, cmd, ft_strlen(str)) != NULL ||
+			ft_strnstr(str, cmd + 1, ft_strlen(cmd + 1)) != NULL)
+		{	
+			str[ft_strlen(str) - ft_strlen(cmd) + 1] = 0;
+			return (str);
+		}
+	}
+	return (NULL);
+}
+
+void	hexit(char *file, char *str, int code)
+{
+	if(file)
+		unlink(file);
+	if(str)
+		ft_putstr_fd(str, 2);
+	exit(code);
+}
+
+void	here_doc(int argc, char **argv, char **envp)
 {
 	int			fd[2];
 	int			infile;
 	int			outfile;
-	t_command	*command;
 	int			i;
+	int			executed;
 	
 	if (permitions(NULL, argv[argc -1]) == -1)
-		return (-1);
+		hexit (NULL, NULL, 1);
 	reading_command_line(argv);
 	infile = open("/tmp/tmp.tmp", O_RDONLY);
 	if (infile == -1)
-		exit (1);
-	i = 3;
+		hexit ("/tmp/tmp.tmp", "Failed to open tmpfile\n", 1);
 	while (i < argc - 2)
 	{
-		command = fill_command(argv[i], envp);
-		if (command == NULL)
-			exit(1);
-		pipe(fd);
-		piped_child(fd[1], infile, fd[0], command);
-		close(fd[1]);
-		close(infile);
-		infile = fd[0];
-		i ++;
+		infile = call_command_to_fd(infile, -1, argv[i], envp);
+		if (i++ && infile != -1)
+			executed++;
 	}
 	outfile = open(argv[argc - 1], O_WRONLY | O_APPEND);
 	if (outfile== -1)
-		exit(1);
-	command = fill_command(argv[argc - 2], envp);
-	if (command == NULL)
-		return (close(outfile), close(infile),-1);
-	piped_child(outfile, infile, 0, command);
+		hexit ("/tmp/tmp.tmp", "Failed to open outfile\n", 1);
+	if (call_command_to_fd(infile, -1, argv[i], envp) != -1)
+		executed ++;
+	hexit ("/tmp/tmp.tmp", NULL, 1);
+}
+
+int	call_command_to_fd(int infile, int outfile, char *cmd, char **envp)
+{
+	int			fd[2];
+	t_command	*command;
+	
+	command = fill_command(cmd, envp);
+	if (outfile == -1)
+		if (pipe(fd) == -1)
+			return (ft_putstr_fd("Pipe failed\n", 2), -1);
+	if (command != NULL && outfile == -1)
+		piped_child(fd[1], infile, fd[0], command);
+	else if (command != NULL)
+	{
+		if(piped_child(outfile, infile, -1, command) == -1)
+			return (ft_putstr_fd("Child failed \n", 2), -1);
+	}
+	else
+		(ft_putstr_fd("Invalid command", 2), ft_putstr_fd(cmd, 2), ft_putstr_fd("\n", 2));
+	if (outfile == -1 && close(fd[1]) != 2 && close(infile) != 2)
+		return (fd[0]);
 	close(infile);
-	close(outfile);
-	i = 0;
-	while(i ++ < argc - 5)
+	return (0);
+}
+
+void	wait_x_times(int i)
+{
+	while(i)
+	{
 		waitpid(-1, NULL, 0);
-	unlink("/tmp/tmp.tmp");
-	exit(1);
+		i --;
+	}
+}
+
+void	intputcheck(int argc, char **argv, char **envp)
+{
+	if (argc < 4)
+	{
+		ft_putstr_fd("Not enought arguments", 2);
+		exit(1);
+	}
+	if (ft_strncmp(argv[1], "here_doc", 9) == 0)
+		 here_doc(argc, argv, envp);
 }
 
 int	main(int argc, char **argv, char **envp)
 {
-	int			fd[2];
-	int			infile;
-	int			outfile;
-	t_command	*command;
-	int			i;
+	int	fd[2];
+	int	infile;
+	int	outfile;
+	int	i;
+	int	executed;
 	
-	if (argc < 4)
-		return 1;
-	if (ft_strncmp(argv[1], "here_doc", 9) == 0)
-		return (here_doc(argc, argv, envp));
-	if (permitions(argv[1], argv[argc -1]) == -1)
-		return (-1);
+	executed = 0;
+	intputcheck(argc, argv, envp);
 	infile = open(argv[1], O_RDONLY);
 	if (infile == -1)
-		return (1);
+		return (ft_putstr_fd("Failed to open infile\n", 2), 1);
 	i = 2;
 	while (i < argc - 2)
 	{
-		command = fill_command(argv[i], envp);
-		if (command == NULL)
-			exit(1);
-		pipe(fd);
-		piped_child(fd[1], infile, fd[0], command);
-		close(fd[1]);
-		close(infile);
-		infile = fd[0];
-		i ++;
+		infile = call_command_to_fd(infile, -1, argv[i], envp);
+		if (i++ && infile != -1)
+			executed++;
 	}
 	outfile = open(argv[argc - 1], O_WRONLY | O_TRUNC);
-	if (outfile== -1)
+	if (outfile == -1)
 		return (close(infile), -1);
-	command = fill_command(argv[argc - 2], envp);
-	if (command == NULL)
-		return (close(outfile), close(infile),-1);
-	piped_child(outfile, infile, 0, command);
-	close(infile);
-	close(outfile);
-	i = 0;
-	while(i ++ < argc - 3)
-		waitpid(-1, NULL, 0);
-	return (1);
+	if (call_command_to_fd(infile, -1, argv[i], envp) != -1)
+		executed ++;
+	return (wait_x_times(executed), 1);
 }
+
 int	permitions(char *rd, char *wr)
 {
 	int	fd;
@@ -188,7 +213,6 @@ int	permitions(char *rd, char *wr)
 	if (access(wr, W_OK) == -1)
 		return (-1);
 	return (1);
-
 }
 
 t_command	*fill_command(char *args, char **envp)
