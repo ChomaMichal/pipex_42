@@ -22,7 +22,7 @@ char	*isbin(char *path, char *command)
 		return (NULL);
 	tmp = ft_strjoin("/", command);
 	if (!tmp)
-		return (NULL);
+		return (ft_putstr_fd("Maloc failed\n", 2), NULL);
 	binpath = ft_strjoin(path, tmp);
 	free(tmp);
 	if (binpath)
@@ -72,12 +72,18 @@ char	*get_path_path(char**envp, char *command)
 		}
 		i ++;
 	}
-	return (free_split(&arr), NULL);
+	return (ft_putstr_fd("Didn't find executable binary\n", 2),
+		free_split(&arr), NULL);
 }
 
 char	*get_path(char**envp, char *command)
 {
 	if (ft_strchr(command, '/'))
-		return (ft_strdup(command));
+	{
+		if (access(command, X_OK) == 0)
+			return (ft_strdup(command));
+		ft_putstr_fd("Didn't find executable binary\n", 2);
+		return (NULL);
+	}
 	return (get_path_path(envp, command));
 }

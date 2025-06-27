@@ -79,10 +79,8 @@ void	here_doc(int argc, char **argv, char **envp)
 	int			i;
 	int			executed;
 
-	i = 0;
+	i = 3;
 	executed = 0;
-	if (permitions(NULL, argv[argc -1]) == -1)
-		hexit (NULL, NULL, 1);
 	reading_command_line(argv);
 	infile = open("/tmp/tmp.tmp", O_RDONLY);
 	if (infile == -1)
@@ -93,10 +91,10 @@ void	here_doc(int argc, char **argv, char **envp)
 		if (i++ && infile != -1)
 			executed++;
 	}
-	outfile = open(argv[argc - 1], O_WRONLY | O_APPEND);
+	outfile = open(argv[argc - 1], O_WRONLY | O_TRUNC | O_CREAT, 0666);
 	if (outfile == -1)
 		hexit ("/tmp/tmp.tmp", "Failed to open outfile\n", 1);
-	if (call_command_to_fd(infile, outfile, argv[i], envp) != -1)
+	if (call_command_to_fd(infile, outfile, argv[argc - 2], envp) != -1)
 		executed ++;
 	hexit ("/tmp/tmp.tmp", NULL, 1);
 }

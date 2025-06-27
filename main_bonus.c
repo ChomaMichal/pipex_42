@@ -36,7 +36,7 @@ int	call_command_to_fd(int infile, int outfile, char *cmd, char **envp)
 			return (ft_putstr_fd("Child failed \n", 2), -1);
 	}
 	else
-		(ft_putstr_fd("Invalid command", 2),
+		(ft_putstr_fd("Invalid command: ", 2),
 			ft_putstr_fd(cmd, 2), ft_putstr_fd("\n", 2));
 	if (outfile == -1 && close(fd[1]) != 2 && close(infile) != 2)
 		return (fd[0]);
@@ -65,8 +65,8 @@ int	main(int argc, char **argv, char **envp)
 	}
 	outfile = open(argv[argc - 1], O_WRONLY | O_TRUNC | O_CREAT, 0666);
 	if (outfile == -1)
-		return (close(infile), -1);
-	if (call_command_to_fd(infile, outfile, argv[i], envp) != -1)
+		return (close(infile), ft_putstr_fd("Failed to open outfile", 2), -1);
+	if (call_command_to_fd(infile, outfile, argv[argc - 2], envp) != -1)
 		executed ++;
 	return (wait_x_times(executed), 1);
 }
