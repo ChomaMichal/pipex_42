@@ -22,7 +22,7 @@ char	*isbin(char *path, char *command)
 		return (NULL);
 	tmp = ft_strjoin("/", command);
 	if (!tmp)
-		return (ft_putstr_fd("Maloc failed\n", 2), NULL);
+		return (ft_putstr_fd("Malloc failed\n", 2), NULL);
 	binpath = ft_strjoin(path, tmp);
 	free(tmp);
 	if (binpath)

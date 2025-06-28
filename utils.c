@@ -48,7 +48,7 @@ void	intputcheck(int argc, char **argv, char **envp)
 {
 	if (argc < 4)
 	{
-		ft_putstr_fd("Not enought arguments", 2);
+		ft_putstr_fd("Not enought arguments\n", 2);
 		exit(1);
 	}
 	if (ft_strncmp(argv[1], "here_doc", 9) == 0)
