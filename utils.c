@@ -24,7 +24,7 @@ void	hexit(char *file, char *str, int code)
 
 int	wait_x_times(int i, int rt)
 {
-	int idk;
+	int	idk;
 
 	i --;
 	if (rt != -1)

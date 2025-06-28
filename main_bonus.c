@@ -37,8 +37,7 @@ int	call_command_to_fd(int infile, int outfile, char *cmd, char **envp)
 			ft_putstr_fd(cmd, 2), ft_putstr_fd("\n", 2));
 	if (outfile == -1 && close(fd[1]) != 2 && close(infile) != 2)
 		return (fd[0]);
-	(close(infile), close(outfile));
-	return (rt);
+	return (close(infile), close(outfile), rt);
 }
 
 int	main(int argc, char **argv, char **envp)

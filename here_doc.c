@@ -34,7 +34,7 @@ char	*reading_from_stdin(char *cmd)
 	{
 		rd = read(0, tmp, 1024);
 		if (rd == -1)
-			return (ft_putstr_fd("rd fl\n", 2), free(str), free(cmd), NULL);
+			return (ft_putstr_fd("rad fail\n", 2), free(str), free(cmd), NULL);
 		tmp[rd] = 0;
 		if (rd == 0)
 			return (str);
