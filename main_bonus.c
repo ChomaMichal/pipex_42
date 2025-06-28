@@ -1,38 +1,35 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   main_bonus.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mchoma <mchoma@student.42vienna.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/06/09 16:05:29 by mchoma            #+#    #+#             */
-/*   Updated: 2025/06/09 16:05:33 by mchoma           ###   ########.fr       */
+/*   Created: 2025/06/28 16:06:25 by mchoma            #+#    #+#             */
+/*   Updated: 2025/06/28 16:06:27 by mchoma           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include "pipex.h"
 #include "libft.h"
-#include <fcntl.h>
-#include <stdio.h> 
-#include <unistd.h>
 //$> ./pipex infile "ls -l" "wc -l" outfile
-
-char	*reading_from_stdin(char *cmd);
-int		call_command_to_fd(int infile, int outfile, char *cmd, char **envp);
 
 int	call_command_to_fd(int infile, int outfile, char *cmd, char **envp)
 {
 	int			fd[2];
 	t_command	*command;
+	int			rt;
 
+	rt = 0;
 	command = fill_command(cmd, envp);
 	if (outfile == -1)
 		if (pipe(fd) == -1)
 			return (ft_putstr_fd("Pipe failed\n", 2), -1);
 	if (command != NULL && outfile == -1)
-		piped_child(fd[1], infile, fd[0], command);
+		rt = piped_child(fd[1], infile, fd[0], command);
 	else if (command != NULL)
 	{
-		if (piped_child(outfile, infile, -1, command) == -1)
+		rt = piped_child(outfile, infile, -1, command);
+		if (rt == -1)
 			return (ft_putstr_fd("Child failed \n", 2), -1);
 	}
 	else
@@ -41,34 +38,36 @@ int	call_command_to_fd(int infile, int outfile, char *cmd, char **envp)
 	if (outfile == -1 && close(fd[1]) != 2 && close(infile) != 2)
 		return (fd[0]);
 	close(infile);
-	return (0);
+	return (rt);
 }
 
 int	main(int argc, char **argv, char **envp)
 {
-	int	infile;
+	int	inf;
 	int	outfile;
 	int	i;
 	int	executed;
+	int	rt;
 
 	executed = 0;
 	intputcheck(argc, argv, envp);
-	infile = open(argv[1], O_RDONLY);
-	if (infile == -1)
-		return (ft_putstr_fd("Failed to open infile\n", 2), 1);
+	inf = open(argv[1], O_RDONLY);
+	if (inf == -1)
+		ft_putstr_fd("Failed to open inf\n", 2);
 	i = 2;
 	while (i < argc - 2)
 	{
-		infile = call_command_to_fd(infile, -1, argv[i], envp);
-		if (i++ && infile != -1)
-			executed++;
+		if (inf != -1)
+			inf = call_command_to_fd(inf, -1, argv[i], envp);
+		inf *= (1 - (i++ && ((inf != -1 && ++ executed) || 1) && inf == -1));
 	}
 	outfile = open(argv[argc - 1], O_WRONLY | O_TRUNC | O_CREAT, 0666);
 	if (outfile == -1)
-		return (close(infile), ft_putstr_fd("Failed to open outfile", 2), -1);
-	if (call_command_to_fd(infile, outfile, argv[argc - 2], envp) != -1)
+		return (close(inf), ft_putstr_fd("Failed to open outfile\n", 2), -1);
+	rt = call_command_to_fd(inf, outfile, argv[argc - 2], envp);
+	if (rt != -1)
 		executed ++;
-	return (wait_x_times(executed), 1);
+	return (wait_x_times(executed, rt));
 }
 
 t_command	*fill_command(char *args, char **envp)

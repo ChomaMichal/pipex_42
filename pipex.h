@@ -33,7 +33,7 @@ void		here_doc(int argc, char **argv, char **envp);
 int			call_command_to_fd(int infile, int outfile, char *cmd, char **envp);
 char		*ft_strjoinf1(char *fr, char *str);
 void		hexit(char *file, char *str, int code);
-void		wait_x_times(int i);
+int			wait_x_times(int i, int rt);
 void		intputcheck(int argc, char **argv, char **envp);
 int			permitions(char *rd, char *wr);
 void		here_doc(int argc, char **argv, char **envp);

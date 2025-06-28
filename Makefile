@@ -37,6 +37,7 @@ all : $(OBJ) $(NAME)
 $(NAME): $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ) -o $(NAME)
 
+bonus : all
 
 clean :
 	rm -f $(OBJ)

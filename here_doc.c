@@ -78,6 +78,7 @@ void	here_doc(int argc, char **argv, char **envp)
 	int			outfile;
 	int			i;
 	int			executed;
+	int			rt;
 
 	i = 3;
 	executed = 0;
@@ -94,7 +95,8 @@ void	here_doc(int argc, char **argv, char **envp)
 	outfile = open(argv[argc - 1], O_WRONLY | O_TRUNC | O_CREAT, 0666);
 	if (outfile == -1)
 		hexit ("/tmp/tmp.tmp", "Failed to open outfile\n", 1);
-	if (call_command_to_fd(infile, outfile, argv[argc - 2], envp) != -1)
+	rt = call_command_to_fd(infile, outfile, argv[argc - 2], envp);
+	if (rt != -1)
 		executed ++;
-	hexit ("/tmp/tmp.tmp", NULL, 1);
+	hexit ("/tmp/tmp.tmp", NULL, wait_x_times(executed, rt));
 }

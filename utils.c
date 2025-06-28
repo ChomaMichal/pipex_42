@@ -22,13 +22,26 @@ void	hexit(char *file, char *str, int code)
 	exit(code);
 }
 
-void	wait_x_times(int i)
+int	wait_x_times(int i, int rt)
 {
+	int idk;
+
+	i --;
+	if (rt != -1)
+		waitpid(rt, &idk, 0);
 	while (i)
 	{
-		waitpid(-1, NULL, 0);
+		waitpid(-1, 0, 0);
 		i --;
 	}
+	if (rt != -1)
+	{
+		if (WIFSIGNALED(idk))
+			return (WTERMSIG(idk) + 128);
+		WEXITSTATUS(idk);
+		return (WEXITSTATUS(idk));
+	}
+	return (1);
 }
 
 void	intputcheck(int argc, char **argv, char **envp)
