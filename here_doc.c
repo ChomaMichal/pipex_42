@@ -69,6 +69,7 @@ int	reading_command_line(char **argv)
 		return (ft_putstr_fd("write failed\n", 2),
 			close(fd), free(str), free(argv[2]), -1);
 	}
+	close(fd);
 	return (free(str), free(argv[2]), fd);
 }
 
@@ -92,7 +93,7 @@ void	here_doc(int argc, char **argv, char **envp)
 		if (i++ && infile != -1)
 			executed++;
 	}
-	outfile = open(argv[argc - 1], O_WRONLY | O_TRUNC | O_CREAT, 0666);
+	outfile = open(argv[argc - 1], O_WRONLY | O_APPEND | O_CREAT, 0666);
 	if (outfile == -1)
 		hexit ("/tmp/tmp.tmp", "Failed to open outfile\n", 1);
 	rt = call_command_to_fd(infile, outfile, argv[argc - 2], envp);

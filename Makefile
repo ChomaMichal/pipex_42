@@ -37,6 +37,9 @@ all : $(OBJ) $(NAME)
 $(NAME): $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ) -o $(NAME)
 
+g : $(OBJ)
+	$(CC) $(CFLAGS) $(OBJ) -o $(NAME) -g
+
 bonus : all
 
 clean :
